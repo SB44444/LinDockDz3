@@ -1,0 +1,198 @@
+ЦП Разработчик Программист группа 3252
+
+https://github.com/SB44444/LinDockDz3.git
+
+Контейнеризация (семинары)
+Урок 3. Введение в Docker
+Задание:
+1) запустить контейнер с БД, отличной от mariaDB, используя инструкции на сайте: https://hub.docker.com/
+По желанию - 3) заполнить БД данными через консоль
+4) запустить phpmyadmin (в контейнере) и через веб проверить, что все введенные данные доступны
+
+Задание
+Создать папку, которую мы будем готовы смонтировать в контейнер
+В этой папке создать файл test.txt и наполнить данными
+В домашней директории создать файл test.txt, который также необходимо будет смонтировать в контейнер и наполнить совершенно другими данными
+Создать контейнер из образа ubuntu:22.10
+Задать ему имя
+Задать hostname
+Смонтировать созданную ранее папку с хоста в контейнер
+Смонтировать созданный ранее текстовый файл внутрь смонтированной папки, чтобы он пересекался с созданным ранее файлом в этой папке. Просмотреть этот файл.
+
+Формат сдачи ДЗ: предоставить доказательства выполнения задания посредством ссылки на google-документ с правами на комментирование/редактирование.
+Результатом работы будет: текст объяснения, логи выполнения, история команд и скриншоты (важно придерживаться такой последовательности).
+В названии работы должны быть указаны ФИ, номер группы и номер урока.
+
+
+sb@sb-VBox:~$ sudo su  #Вход из под root
+
+[sudo] пароль для sb: 
+
+root@sb-VBox:/home/sb# cd /
+
+root@sb-VBox:/# mkdir host_test  # Cоздание директории на хосте
+
+root@sb-VBox:/# ls               # Проверяем
+
+bin    dev      home       lib32   lost+found  opt   run   srv       test  var
+
+boot   dockers  host_test  lib64   media       proc  sbin  swapfile  tmp
+
+cdrom  etc      lib        libx32  mnt         root  snap  sys       usr
+
+#Запуск контейнера -v   привязываем директории /host_test:/conteiner_test
+
+root@sb-VBox:/# docker run -it -h DZ --name DZ-test -v /host_test:/conteiner_test ubuntu:22.10
+
+root@DZ:/# ls               # Проверяем
+
+bin   conteiner_test  etc   lib    lib64   media  opt   root  sbin  sys  usr
+
+boot  dev             home  lib32  libx32  mnt    proc  run   srv   tmp  var
+
+root@DZ:/# cd /conteiner_test
+
+root@DZ:/conteiner_test# touch DZ_3.txt        # Создаём файл
+
+root@DZ:/conteiner_test# echo "DZ Pass 55555" >> DZ_3.txt   # Зписываем данные
+
+root@DZ:/conteiner_test# cat DZ_3.txt          # Проверяем
+
+DZ Pass 55555
+
+root@DZ:/conteiner_test# exit
+
+exit
+
+root@sb-VBox:/# ls
+
+bin    dev      home       lib32   lost+found  opt   run   srv       test  var
+
+boot   dockers  host_test  lib64   media       proc  sbin  swapfile  tmp
+
+cdrom  etc      lib        libx32  mnt         root  snap  sys       usr
+
+root@sb-VBox:/# cd /host_test
+
+root@sb-VBox:/host_test# ls
+
+root@sb-VBox:/host_test# ls
+
+DZ_3.txt
+
+root@sb-VBox:/host_test# cat DZ_3.txt   # Проверяем заполнение данными файла для обмена данными
+
+DZ Pass 55555                           # Всё работает!
+
+root@sb-VBox:/host_test# 
+
+
+Запуск связанных по сети контейнеров БД MYSQL и phpmyadmin 
+
+   # Запуск контейнера MYSQL версии 8.0.31 с паролем для пользователя root
+
+root@sb-VBox:/home/sb# docker run --name some-mysql -e MYSQL_ROOT_PASSWORD=my-secret-pw -d mysql:8.0.31
+
+Unable to find image 'mysql:8.0.31' locally
+
+8.0.31: Pulling from library/mysql
+
+0ed027b72ddc: Pull complete 
+
+0296159747f1: Pull complete 
+
+3d2f9b664bd3: Pull complete 
+
+df6519f81c26: Pull complete 
+
+36bb5e56d458: Pull complete 
+
+054e8fde88d0: Pull complete 
+
+f2b494c50c7f: Pull complete 
+
+132bc0d471b8: Pull complete 
+
+135ec7033a05: Pull complete 
+
+5961f0272472: Pull complete 
+
+75b5f7a3d3a4: Pull complete 
+
+Digest: sha256:3d7ae561cf6095f6aca8eb7830e1d14734227b1fb4748092f2be2cfbccf7d614
+
+Status: Downloaded newer image for mysql:8.0.31
+
+d5d9d3639e76b2800a1856116c45044260305c09e355a75573473da968ac84f5
+
+
+  # Запуск контейнера phpmyadmin, где устанавливается связь по сети 
+
+root@sb-VBox:/home/sb# docker run --name myphp -d --link some-mysql:db -p 8081:80 phpmyadmin/phpmyadmin
+
+Unable to find image 'phpmyadmin/phpmyadmin:latest' locally
+
+latest: Pulling from phpmyadmin/phpmyadmin
+
+f1f26f570256: Pull complete 
+
+ee0a4e40ccac: Pull complete 
+
+5ca9fb408faa: Pull complete 
+
+5baa808a48ff: Pull complete 
+
+6e8d74e4d8ee: Pull complete 
+
+fac8e70fcf67: Pull complete 
+
+b3b7906fb177: Pull complete 
+
+cb4935bbeb83: Pull complete 
+
+c9e00ef337e3: Pull complete 
+
+cfe495c8d695: Pull complete 
+
+dcc3fd107f0c: Pull complete 
+
+fe3c587d1f07: Pull complete 
+
+677f27d94442: Pull complete 
+
+4d778a8cb653: Pull complete 
+
+5f0f7b557ecd: Pull complete 
+
+6ad259d60f7c: Pull complete 
+
+41acd705cbc4: Pull complete 
+
+912204d5a7e6: Pull complete 
+
+Digest: sha256:ed87921184b59f7d8fc85c6a5f041c22758a4d4419c0ee3bac38eb7e133eaed3
+
+Status: Downloaded newer image for phpmyadmin/phpmyadmin:latest
+
+ec6c35776199f193f064c26e054f6441e13c7be7ef99c5cce9668fff033ff88f
+
+root@sb-VBox:/home/sb# 
+
+ # Проверка работоспособности через браузер, localhost:8081
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
